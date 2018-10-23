@@ -1,5 +1,5 @@
 import datetime
-import market
+import marketBaseClass
 
 
 def getBankFile():

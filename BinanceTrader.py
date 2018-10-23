@@ -1,5 +1,5 @@
 import logger
-from market import market
+from marketBaseClass import market
 from binance.client import Client
 
 

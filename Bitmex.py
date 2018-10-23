@@ -5,11 +5,12 @@ from time import sleep
 
 import bitmexApi.bitmex
 import logger
-from market import market
+from limitOrderMarket import limitMarket
+from marketBaseClass import market
 
 
 # a controller for ONE bitmex connection. This is a basic formula for how it should look.
-class Bitmex(market):
+class Bitmex(limitMarket):
 
     def getOrderPrice(self, orderID):
         order = self.limitOrderStatus(orderID)
@@ -20,6 +21,7 @@ class Bitmex(market):
     marketName = 'BITMEX'
 
     limitOrderEnabled = True
+    contractExchange = True
 
 
 
@@ -95,9 +97,7 @@ class Bitmex(market):
         return res
 
 
-    def getTickSize(self, asset, currency):
-        res = self.market.Instrument.Instrument_get(symbol=asset+currency).result()[0][0]['tickSize']
-        return res
+
 
     def closeLimitOrder(self, orderID):
         if orderID != None:
@@ -143,26 +143,15 @@ class Bitmex(market):
 
         openOrder = self.orderOpen(orderId)
         if openOrder and orderQuantity != 0:
-            try:
                 result = self.market.Order.Order_amend(orderID=orderId, price=price).result()
                 logger.logOrder(self.marketName, 'Limit', price, asset, currency, orderQuantity,
                                 str(note) + ' amend for order: ' + str(orderId))
-            except Exception as e:
-
-                if e.response.status_code == 400:
-                    logger.logError('LIMIT AMEND ERROR')
-                    orderQuantity = self.quantityLeftInOrder(orderId,orderQuantity)
-                    if orderQuantity != 0:
-                        openOrder = False
-                else:
-                    logger.logError('UNKNOWN LIMIT ERROR: ' + str(e))
-                    raise e
-
 
         if not openOrder and orderQuantity != 0:
             result = self.market.Order.Order_new(symbol=asset + currency, orderQty=orderQuantity, ordType="Limit",
                                              price=price, execInst='ParticipateDoNotInitiate').result()
             logger.logOrder(self.marketName, 'Limit', price, asset, currency, orderQuantity, note)
+
         if result is not None:
             tradeInfo = result[0]
             for key, value in tradeInfo.items():
@@ -257,13 +246,10 @@ class Bitmex(market):
     def getWallet(self):
         return self.market.User.User_getWallet().result()
 
-    def getNumberOfTradingPairs(self):
-        pass
-
-    # def logOrder(self, orderQuantity, asset, currency):
-    #     print("Available Balance: %s \n" % (self.getAvailableBalanceInUsd()))
-    #     print("Ordering %d contracts of %s%s \n" % (orderQuantity, asset, currency))
-    #     pass
+# def logOrder(self, orderQuantity, asset, currency):
+#     print("Available Balance: %s \n" % (self.getAvailableBalanceInUsd()))
+#     print("Ordering %d contracts of %s%s \n" % (orderQuantity, asset, currency))
+#     pass
 #
 #
 #

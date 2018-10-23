@@ -1,6 +1,7 @@
 import logger
+from order import order
 from Bitmex import Bitmex
-from market import market
+from marketBaseClass import market
 
 assetSubjectNumber = 0
 currencySubjectNumber = 1
@@ -20,6 +21,7 @@ class controller:
     marginFromPrice = None
     maximumDeviationFromPrice = None
     goodLimitThreshold = None
+    currentOrders = []
 
     def __init__(self, gmail, priceMargin, maximum, realMoney):
         self.marginFromPrice = priceMargin
@@ -34,12 +36,17 @@ class controller:
             self.marketControllers[market].connect()
 
         while True:
-            emails = self.gmailController.listen(-1)
+            emails = self.gmailController.listen(1)
             if emails is not None:
                 for email in emails:
-                    result = self.createOrder(email)
-                    if result:
-                        self.gmailController.setEmailsToRead()
+                    self.createOrder(email)
+
+            self.processOrders()
+
+                #PROCESS ORDER
+
+                  # setting email to read
+                  # if result:
 
 
     def importAPIKeys(self):
@@ -71,18 +78,26 @@ class controller:
         self.marketControllers[name] = market
 
     def createOrder(self, email):
-        market = email.parameters[marketSubjectNumber]
-        type = email.parameters[typeSubjectNumber]
-        asset = email.parameters[assetSubjectNumber]
-        currency = email.parameters[currencySubjectNumber]
-        logger.logEmail(market, type, asset, currency)
-        if market in self.marketControllers:
-            if self.marketControllers[market].limitOrderEnabled:
-                return self.marketControllers[market].executeLimitOrder(type, asset, currency)
+        newOrder = order()
+        newOrder.asset = email.parameters[assetSubjectNumber]
+        newOrder.market = email.parameters[marketSubjectNumber]
+        newOrder.type = email.parameters[typeSubjectNumber]
+        newOrder.currency = email.parameters[currencySubjectNumber]
+        newOrder.emailID = email
+        logger.logEmail(market, newOrder.type, newOrder.asset, newOrder.currency)
+
+        if newOrder.market.upper() in self.marketControllers:
+            if self.marketControllers[newOrder.market.upper()].limitOrderEnabled:
+                newOrder.limitOrder = True
             else:
-                return self.marketOrder(self.marketControllers[market],
-                             asset,
-                             currency, type)
+                newOrder.limitOrder = False
+
+            if self.marketControllers[newOrder.market.upper()].contractExchange:
+                newOrder.equilibrium = True
+            else:
+                newOrder.equilibrium = False
+            self.currentOrders.append(newOrder)
+
 
     def marketOrder(self, market, asset, currency, type):
 
@@ -91,5 +106,14 @@ class controller:
         else:
             return market.marketOrder('sell', asset, currency)
 
+    def processOrders(self):
+        for order in self.currentOrders:
+            if order.market.upper() in self.marketControllers:
+                self.marketControllers[order.market.upper()].followingLimitOrder(order)
+
+        for order in self.currentOrders[:]:
+            if order.completed == True:
+                self.gmailController.setEmailToRead(order.emailID)
+                self.currentOrders.remove(order)
 
 

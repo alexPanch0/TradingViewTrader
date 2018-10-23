@@ -17,7 +17,7 @@ class gmailHandler:
     refreshTime = 1
     real_money = False
     readEmailCommand = {'removeLabelIds': ['UNREAD'], 'addLabelIds': []}
-    lastReceivedEmails = None
+    # lastReceivedEmails = None
 
     def __init__(self, locationOfCredentials):
         store = file.Storage('token.json')
@@ -45,12 +45,13 @@ class gmailHandler:
                 time.sleep(self.refreshTime)
                 print("Listened for " + str(count) + " seconds")
                 count = count + 1
+        return None
 
     def readEmails(self, emails):
         messageIds = emails['messages']
         processedEmails = []
 
-        self.lastReceivedEmails = messageIds
+        # self.lastReceivedEmails = messageIds
 
         for messageId in messageIds:
             message = self.gmailAPI.users().messages().get(userId='me', id=messageId['id']).execute()
@@ -61,10 +62,14 @@ class gmailHandler:
 
 
 
+    #
+    # def setEmailsToRead(self):
+    #     for messageId in self.lastReceivedEmails:
+    #         self.gmailAPI.users().messages().modify(userId='me', id=messageId['id'],
+    #                                                 body=self.readEmailCommand).execute()
 
-    def setEmailsToRead(self):
-        for messageId in self.lastReceivedEmails:
-            self.gmailAPI.users().messages().modify(userId='me', id=messageId['id'],
+    def setEmailToRead(self,email):
+            self.gmailAPI.users().messages().modify(userId='me', id=email['id'],
                                                     body=self.readEmailCommand).execute()
 
     def authEmail(self, email):
