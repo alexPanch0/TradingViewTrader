@@ -186,17 +186,11 @@ class limitOrderMarket (marketBaseClass):
     def getCurrentPrice(self, asset, currency):
         pass
 
-    @abstractmethod
-    def closeLimitOrders(self, asset, currency):
-        pass
 
     @abstractmethod
     def getAmountOfItem(self, coin):
         pass
 
-    @abstractmethod
-    def getTickSize(self, asset, currency):
-        pass
 
     @abstractmethod
     def getOrderBook(self, asset, currency):
