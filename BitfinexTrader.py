@@ -4,11 +4,12 @@ import time
 import sys
 import traceback
 
+import client as client
+
 import bank
 import logger
-from btfxwss import BtfxWss
 from market import market
-from btfxwss import client
+import btfxwss.client
 
 
 class BitfinexTrader (market):
@@ -118,7 +119,7 @@ class BitfinexTrader (market):
                 quantity=orderSize)
 
     def connect(self):
-        self.market = client(self.apiKey, self.apiKeySecret)
+        self.market = btfxwss.BtfxWss(self.apiKey, self.apiKeySecret)
         pass
 
     def getCurrentPrice(self, asset, currency):
@@ -209,7 +210,7 @@ class BitfinexTrader (market):
 # log.addHandler(fh)
 # logging.basicConfig(level=logging.DEBUG, handlers=[fh, sh])
 
-wss = BtfxWss()
+wss = btfxwss.BtfxWss()
 wss.start()
 
 while not wss.conn.connected.is_set():
