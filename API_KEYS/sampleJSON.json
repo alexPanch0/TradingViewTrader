@@ -13,6 +13,13 @@
       "real_money": true,
       "keyID": "8JPfGMnsras1IBshyOUPba6FF583Ith8izZzWHJbgAnQA0YGcKqn3Yr8vt4RDdLt",
       "privateKey": "R7gNFJht6inBVjmm4blS5dwCiIkrIatLjfac4woiF8EpiUWWH8IBRUrPKDT7vIRB"
+    },
+    {
+      "name": "JSON2",
+      "market": "BITFINEX",
+      "real_money": true,
+      "keyID": "8JPfGMnsras1IBshyOUPba6FF583Ith8izZzWHJbgAnQA0YGcKqn3Yr8vt4RDdLt",
+      "privateKey": "R7gNFJht6inBVjmm4blS5dwCiIkrIatLjfac4woiF8EpiUWWH8IBRUrPKDT7vIRB"
     }
   ]
 }

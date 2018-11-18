@@ -1,6 +1,7 @@
 import logger
 from Bitmex import Bitmex
 from BinanceTrader import BinanceTrader
+import BitfinexTrader
 from market import market
 
 assetSubjectNumber = 0
@@ -61,6 +62,11 @@ class controller:
                         if keySet['market'] == 'BINANCE':
                             apiKey = keySet['keyID']
                             test = BinanceTrader(keySet['keyID'], keySet['privateKey'], keySet['real_money'], keySet['name'])
+                            self.addMarket(test, keySet['market'])
+
+                        if keySet['market'] == 'BITFINEX':
+                            apiKey = keySet['keyID']
+                            test = BitfinexTrader(keySet['keyID'], keySet['privateKey'], keySet['real_money'], keySet['name'])
                             self.addMarket(test, keySet['market'])
                 continue
             else:
