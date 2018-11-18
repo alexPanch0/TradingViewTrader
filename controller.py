@@ -1,7 +1,7 @@
 import logger
 from order import order
 from Bitmex import Bitmex
-from marketBaseClass import market
+from marketBaseClass import marketBaseClass
 
 assetSubjectNumber = 0
 currencySubjectNumber = 1
@@ -24,6 +24,7 @@ class controller:
     currentOrders = []
 
     def __init__(self, gmail, priceMargin, maximum, realMoney):
+        self.listenTime = 5
         self.marginFromPrice = priceMargin
         self.maximumDeviationFromPrice = maximum
         self.gmailController = gmail
@@ -36,10 +37,11 @@ class controller:
             self.marketControllers[market].connect()
 
         while True:
-            emails = self.gmailController.listen(1)
+            emails = self.gmailController.listen(self.listenTime)
             if emails is not None:
                 for email in emails:
-                    self.createOrder(email)
+                    if not self.emailAlreadyProcessed(email):
+                        self.createOrder(email)
 
             self.processOrders()
 
@@ -48,6 +50,14 @@ class controller:
                   # setting email to read
                   # if result:
 
+
+    def emailAlreadyProcessed(self,email):
+        for processedOrder in self.currentOrders:
+            one = processedOrder.emailID.messageID
+            two = email.messageID
+            if processedOrder.emailID.messageID == email.messageID:
+                return True
+        return False
 
     def importAPIKeys(self):
         folder = 'API_KEYS/'
@@ -84,7 +94,7 @@ class controller:
         newOrder.type = email.parameters[typeSubjectNumber]
         newOrder.currency = email.parameters[currencySubjectNumber]
         newOrder.emailID = email
-        logger.logEmail(market, newOrder.type, newOrder.asset, newOrder.currency)
+        logger.logEmail(newOrder.market, newOrder.type, newOrder.asset, newOrder.currency)
 
         if newOrder.market.upper() in self.marketControllers:
             if self.marketControllers[newOrder.market.upper()].limitOrderEnabled:
@@ -107,9 +117,11 @@ class controller:
             return market.marketOrder('sell', asset, currency)
 
     def processOrders(self):
+        self.listenTime = len(self.currentOrders)*2 + 1
+        print('Listen time is currently: ' + str(self.listenTime))
         for order in self.currentOrders:
             if order.market.upper() in self.marketControllers:
-                self.marketControllers[order.market.upper()].followingLimitOrder(order)
+                self.marketControllers[order.market.upper()].makeOrder(order)
 
         for order in self.currentOrders[:]:
             if order.completed == True:

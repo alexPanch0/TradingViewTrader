@@ -8,6 +8,7 @@ from marketBaseClass import marketBaseClass
 
 
 class marketOrderMarket(marketBaseClass):
+    limitOrderEnabled = False
 
     @abstractmethod
     def getCurrentPrice(self, asset, currency):

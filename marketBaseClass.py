@@ -20,6 +20,7 @@ def getIfExists(dict, key):
 
 
 class marketBaseClass(ABC):
+    limitOrderEnabled = None
     buyText = 'BUY'
     sellText = 'SELL'
     connectorName = None

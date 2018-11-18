@@ -21,6 +21,7 @@ def logOrder(exchange, orderType, price, asset, currency, amount, note=None):
 
 def logCompletedOrder(exchange, orderType, price, initialPrice, buyOrSell, asset, currency, note=None):
     file = getLogFile()
+
     difference = initialPrice - price
     percentChange = abs(100 * ((price - initialPrice)/initialPrice) )
     outputText = 'COMPLETED ORDER: ' + exchange + ' ' + orderType + ' order at ' + str(datetime.datetime.now()) +  " " + str(buyOrSell) + '  pair ' + str(
@@ -28,7 +29,13 @@ def logCompletedOrder(exchange, orderType, price, initialPrice, buyOrSell, asset
     file.write(outputText)
 
 
+def logDuplicateOrder(order):
+    file =getLogFile()
+    outputText = 'DUPLICATE ORDER FOUND: ' + str(order.market) + ' limit: ' + str(order.limitOrder) + ' order at ' + str(
+        datetime.datetime.now()) + " " + str(order.type) + '  pair ' + str(
+        order.asset) + str(order.currency) + '% Note: ' + str(order.note) + '\n'
 
+    file.write(outputText)
 
 def logError(exception):
     file = getLogFile()

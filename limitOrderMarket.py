@@ -9,6 +9,7 @@ from marketBaseClass import marketBaseClass
 
 
 class limitOrderMarket (marketBaseClass):
+    limitOrderEnabled = True
     marginFromPrice = None
     maximumDeviationFromPrice = None
 
@@ -89,16 +90,29 @@ class limitOrderMarket (marketBaseClass):
 
 
     def initializeLimitOrder(self, order):
+        order.type = self.interpretType(order.type)
+
+        amount = 0
+
         if not order.equilibrium:
             # noinspection PyTypeChecker
-            amount = abs(self.getAmountOfItem(str(order.asset)+ str(order.currency)))
+            amount = self.getAmountOfItem(str(order.asset)+ str(order.currency))
 
-        else:
+            # if we are already in a short we wont be shorting more. Current position of way we do things.
+            if amount < 0 and order.type == self.sellText:
+                order.completed = True
+            else:
+                if amount > 0 and order.type == self.buyText:
+                    order.completed = True
+            amount = abs(amount)
+
+        if amount == 0:
+            order.equilibrium = True
             # noinspection PyTypeChecker
             amount = abs(self.getMaxAmountToUse(order.asset, order.currency) * 0.4)
-        order.setOrderData('orderQuantity', amount)
-        order.initialized = True
 
+        order.initialized = True
+        order.setOrderData('orderQuantity', amount)
         order.setOrderData('initialPrice', self.getCurrentPrice(order.asset, order.currency))
 
     def makeOrder(self,order):
@@ -106,15 +120,19 @@ class limitOrderMarket (marketBaseClass):
             if not order.initialized:
                 self.initializeLimitOrder(order)
 
+            if order.completed == True:
+                logger.logDuplicateOrder(order)
+                return None
+
             initialPrice = order.getOrderData('initialPrice')
             previousLimitPrice = order.getOrderData('previousLimitPrice')
 
             order.setOrderData(orderDataConstants.orderQuantity,
-                               self.quantityLeftInOrder(order.getOrderData(orderDataConstants.orderID)))
+                               self.quantityLeftInOrder(order.getOrderData(orderDataConstants.orderID),order.getOrderData(orderDataConstants.orderQuantity)))
 
             if self.isInRange(order.type, initialPrice, previousLimitPrice, self.maximumDeviationFromPrice,
-                              order.equilibrium) and order.orderQuantity != 0:
-                res = self.sendLimitOrder(order.type, order.asset, order.currency, order.orderQuantity,
+                              order.equilibrium) and order.getOrderData(orderDataConstants.orderQuantity) != 0:
+                res = self.sendLimitOrder(order.type, order.asset, order.currency, order.getOrderData(orderDataConstants.orderQuantity),
                                           order.getOrderData(orderDataConstants.orderID),
                                           order.note,
                                           previousLimitPrice=previousLimitPrice)
@@ -131,7 +149,7 @@ class limitOrderMarket (marketBaseClass):
             else:
                 if self.orderOpen(order.getOrderData(orderDataConstants.orderID)):
                     self.closeLimitOrder(order.getOrderData(orderDataConstants.orderID))
-                self.finishOrder(order)
+                self.finishOrderStep(order)
         except:
             tb = traceback.format_exc()
             logger.logError(tb)
@@ -157,9 +175,10 @@ class limitOrderMarket (marketBaseClass):
     def quantityLeftInOrder(self, orderID, orderQuantity):
         pass
 
-    def finishOrder(self, order):
+    def finishOrderStep(self, order):
         if not order.equilibrium:
             order.equilibrium = True
+            order.initialized = False
         else:
             if not order.completed:
                 order.completed = True
