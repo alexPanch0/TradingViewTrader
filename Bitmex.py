@@ -119,13 +119,14 @@ class Bitmex(limitOrderMarket):
             result = self.market.Order.Order_amend(orderID=orderId, price=limitPrice).result()
             logger.logOrder(self.marketName, 'Limit', limitPrice, asset, currency, orderQuantity,
                             str(note) + ' amend for order: ' + str(orderId))
-
         if not openOrder and orderQuantity != 0:
             result = self.market.Order.Order_new(symbol=asset + currency, orderQty=orderQuantity, ordType="Limit",
                                                  price=limitPrice, execInst='ParticipateDoNotInitiate').result()
             logger.logOrder(self.marketName, 'Limit', limitPrice, asset, currency, orderQuantity, note)
 
         if result is not None:
+            print('Rate limit is now: ' + self.getRemainingRequests(result))
+            # print('Rate limit is now: ' + str(result[1]['headers']['_store']['x-ratelimit-remaining']))
             tradeInfo = result[0]
             for key, value in tradeInfo.items():
                 if key == "orderID":
@@ -133,6 +134,10 @@ class Bitmex(limitOrderMarket):
                     return newOrderId[9:]
         else:
             return None
+
+    def getRemainingRequests(self,result):
+        item = result[1].headers.get('x-ratelimit-remaining')
+        return item
 
     def limitSell(self, limitPrice, asset, currency, orderQuantity, orderNumber=None, note=None):
         return self.limitBuy(limitPrice, asset, currency, -orderQuantity, orderNumber, note)
