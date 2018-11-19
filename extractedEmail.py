@@ -8,7 +8,9 @@ HEADER_DATE = 17
 
 def getParamFromHeader(messageHeaders,nameOfParam):
     for header in messageHeaders:
-        if header['name'] == nameOfParam:
+        one = header['name'].lower()
+        two = nameOfParam.lower()
+        if header['name'].lower() == nameOfParam.lower():
             return header['value']
     return None
 
@@ -20,12 +22,14 @@ class email:
     date = None
     validEmail = True
     boundaryString = '$$'
+    messageID = None
 
 
     def __init__(self,message):
         self.subject = getParamFromHeader(message ['payload']['headers'], 'Subject')
         self.date = getParamFromHeader(message ['payload']['headers'], 'Date')
         self.sender = getParamFromHeader(message ['payload']['headers'], 'From')
+        self.messageID = message['id']
         self.parseSubjectForParams()
 
 

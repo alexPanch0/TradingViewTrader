@@ -11,6 +11,9 @@ class order:
     initialized = False
     orderData = {}
 
+    def __init__(self):
+        self.orderData = {}
+
     def getOrderData(self,key):
         if key in self.orderData:
             return self.orderData[key]

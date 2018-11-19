@@ -1,10 +1,14 @@
+import traceback
 from abc import abstractmethod
+from asyncio import sleep
 
 import bank
+import logger
 from marketBaseClass import marketBaseClass
 
 
 class marketOrderMarket(marketBaseClass):
+    limitOrderEnabled = False
 
     @abstractmethod
     def getCurrentPrice(self, asset, currency):

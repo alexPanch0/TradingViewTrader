@@ -73,7 +73,7 @@ class gmailHandler:
     #                                                 body=self.readEmailCommand).execute()
 
     def setEmailToRead(self,email):
-            self.gmailAPI.users().messages().modify(userId='me', id=email['id'],
+            self.gmailAPI.users().messages().modify(userId='me', id=email.messageID,
                                                     body=self.readEmailCommand).execute()
 
     def authEmail(self, email):
