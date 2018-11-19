@@ -60,20 +60,20 @@ class gmailHandler:
             if self.authEmail(message):
                 processedEmails.append(email(message))
             else:
-                self.setEmailsToRead()
+                self.setEmailToRead(message)
 
         return processedEmails
 
 
 
-    #
-    # def setEmailsToRead(self):
-    #     for messageId in self.lastReceivedEmails:
-    #         self.gmailAPI.users().messages().modify(userId='me', id=messageId['id'],
-    #                                                 body=self.readEmailCommand).execute()
+
+    def setEmailsToRead(self):
+        for messageId in self.lastReceivedEmails:
+            self.gmailAPI.users().messages().modify(userId='me', id=messageId['id'],
+                                                    body=self.readEmailCommand).execute()
 
     def setEmailToRead(self,email):
-            self.gmailAPI.users().messages().modify(userId='me', id=email.messageID,
+            self.gmailAPI.users().messages().modify(userId='me', id=email['id'],
                                                     body=self.readEmailCommand).execute()
 
     def authEmail(self, email):

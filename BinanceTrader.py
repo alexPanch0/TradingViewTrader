@@ -4,19 +4,17 @@ from time import sleep
 
 import bank
 import logger
-import marketBaseClass
+from marketOrderMarket import marketOrderMarket
 from binance.client import Client
 
 
-class BinanceTrader (marketBaseClass):
+class BinanceTrader(marketOrderMarket):
 
     allocationAmtInBtc = 0
     NUMBER_OF_COINS = 6
     AVAILABLE_BALANCE = 0.007
 
     def __init__(self, apiKey, apiKeySecret,realMoney,name):
-        # The super function runs the constructor on the market class that this class inherits from. In other words,
-        # done mess with it or the parameters I put in this init function
 
         super(BinanceTrader, self).__init__(apiKey, apiKeySecret, realMoney, name)
         self.connect()
@@ -160,43 +158,10 @@ class BinanceTrader (marketBaseClass):
         print("error")
         return
 
-    def getOrderPrice(self, orderID):
-        pass
-
-    def closeLimitOrders(self, asset, currency):
-        pass;
-
-    def getOrderBook(self, asset, currency):
-        pass
-
-    def extractLimitPrice(self, type, asset, currency):
-        pass
-
-    def limitBuy(self, limitPrice, asset, currency, orderQuantity, orderNumber=None, note=None):
-        pass;
-
-    def limitSell(self, limitPrice, asset, currency, orderQuantity, orderNumber=None, note=None):
-        pass;
-
-    def limitOrderStatus(self, orderID):
+    def makeOrder(self, order):
         pass
 
     def interpretType(self, type):
-        pass
-
-    def orderOpen(self, orderID):
-        pass
-
-    def closeLimitOrder(self, orderID):
-        pass
-
-    def orderCanceled(self, orderID):
-        pass
-
-    def quantityLeftInOrder(self, orderID, orderQuantity):
-        pass
-
-    def resetToEquilibrium_Market(self, currentAmount, asset, currency):
         pass
 
     def getMaxAmountToUse(self, asset, currency):
