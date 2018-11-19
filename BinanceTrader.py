@@ -1,11 +1,14 @@
 import math
+import traceback
+from time import sleep
+
 import bank
 import logger
-from marketBaseClass import market
+import marketBaseClass
 from binance.client import Client
 
 
-class BinanceTrader (market):
+class BinanceTrader (marketBaseClass):
 
     allocationAmtInBtc = 0
     NUMBER_OF_COINS = 6

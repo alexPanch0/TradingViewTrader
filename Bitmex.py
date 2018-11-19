@@ -1,4 +1,3 @@
-
 import datetime
 from decimal import Decimal
 from math import floor
